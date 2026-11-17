@@ -1,0 +1,1282 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>한화시스템 주간 회의자료</title>
+<style>
+:root {
+  color-scheme: light;
+  --ink: #182e27;
+  --muted: #54665e;
+  --line: #dde5df;
+  --bg: #f3f6f2;
+  --green: #145b45;
+  --mist: #e6f2eb;
+  --amber: #8b4b13;
+  font-family: Inter, "Malgun Gothic", system-ui, sans-serif;
+}
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+body { margin: 0; color: var(--ink); background: var(--bg); font-size: 14px }
+.shell { max-width: 1430px; margin: auto; padding: 28px clamp(12px, 3vw, 42px) 38px }
+header, .row, .actions, .filters, .pages, .dialogHead, .dialogFoot {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap
+}
+header, .spread, .dialogHead { justify-content: space-between }
+h1, h2, p { margin: 0 }
+h1 { font-size: clamp(23px, 4vw, 34px); line-height: 1.15; letter-spacing: -.055em }
+h2 { font-size: 19px; letter-spacing: -.035em }
+p, .muted { color: var(--muted); line-height: 1.55 }
+header { margin-bottom: 15px }
+.actions { padding: 13px 0 15px }
+button, input, select, textarea { font: inherit }
+button {
+  border: 1px solid #cad8cf; background: #fff; color: var(--ink);
+  border-radius: 8px; padding: 9px 13px; cursor: pointer; font-weight: 650
+}
+button:hover:not(:disabled) { background: #eef5ef }
+button:disabled { cursor: default; opacity: .47 }
+:focus-visible { outline: 2px solid #218369; outline-offset: 2px }
+.primary { background: var(--green); border-color: var(--green); color: #fff }
+.primary:hover:not(:disabled) { background: #104a38 }
+.storage { color: var(--green); font-size: 12px; font-weight: 750 }
+.storage::before {
+  content: ""; display: inline-block; width: 7px; height: 7px;
+  border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: 1px
+}
+.notice {
+  font-size: 12px; padding: 10px 13px; border: 1px solid var(--line);
+  border-left: 3px solid #8db39d; border-radius: 7px; background: #f9fbf8
+}
+.tabs { display: flex; gap: 14px; border-bottom: 1px solid var(--line); margin-bottom: 17px }
+.tabs button {
+  border: 0; border-radius: 0; background: transparent; color: var(--muted);
+  padding: 11px 5px 10px; border-bottom: 2px solid transparent
+}
+.tabs button[aria-pressed="true"] { color: var(--green); border-bottom-color: var(--green) }
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; margin-bottom: 15px }
+.metric { padding: 12px 14px; text-align: left; min-width: 0 }
+.metric span, .metric strong { display: block }
+.metric span { font-size: 12px; color: var(--muted) }
+.metric strong { font-size: 26px; line-height: 1.15; margin-top: 5px; font-variant-numeric: tabular-nums }
+.metric[aria-pressed="true"] { background: var(--mist); border-color: #7cae98 }
+.metric.short strong, .warning { color: var(--amber) }
+.panel { background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden }
+.panelHead, .paneBody { padding: 14px 16px }
+.panelHead { border-bottom: 1px solid var(--line) }
+.pages { justify-content: flex-end; border-top: 1px solid var(--line); padding: 10px 14px; color: var(--muted) }
+label { display: grid; gap: 5px; font-size: 13px; font-weight: 650; min-width: 0 }
+input, select, textarea {
+  min-width: 0; max-width: 100%; padding: 8px 9px; color: var(--ink);
+  border: 1px solid #cbd8cf; border-radius: 7px; background: #fff
+}
+textarea { width: 100%; resize: vertical }
+#search { width: min(330px, 60vw) }
+.tableWrap { overflow: auto }
+table { width: 100%; border-collapse: collapse; text-align: left }
+#meetingTable table { min-width: 990px }
+thead { background: #f4f7f3; color: #41574d }
+th { font-size: 12px; white-space: nowrap }
+th, td { padding: 10px 11px; border-bottom: 1px solid #edf0ed; vertical-align: top }
+tr:last-child td { border-bottom: 0 }
+tr:hover td { background: #fbfcfa }
+td small { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; white-space: nowrap }
+td.warning small { color: var(--amber) }
+.code { font-variant-numeric: tabular-nums; white-space: nowrap }
+.numeric { text-align: right; font-variant-numeric: tabular-nums }
+.tag {
+  display: inline-block; white-space: nowrap; border-radius: 12px; padding: 3px 7px;
+  font-size: 11px; font-weight: 750; background: #edf1ed; color: #46584f; margin: 0 3px 3px 0
+}
+.tag.done { background: var(--mist); color: var(--green) }
+.tag.new { background: #fff1d4; color: #744909 }
+.noteCell { min-width: 105px; max-width: 170px }
+.noteCell span {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere
+}
+.compact { padding: 4px 8px; font-size: 12px; white-space: nowrap }
+.empty, .emptyCell { text-align: center; color: var(--muted) }
+.empty { padding: 48px 12px }
+.empty p { margin: 9px 0 15px }
+.emptyCell { padding: 24px 10px }
+.stockForm { align-items: end; margin: 12px 0 16px }
+.stockForm input { width: 180px }
+#stockNumber { width: 132px }
+.help { padding: 13px 0; font-size: 12px }
+.help p { margin-top: 6px }
+summary { cursor: pointer; font-weight: 650 }
+.fileCell { overflow-wrap: anywhere }
+dialog {
+  color: var(--ink); border: 1px solid var(--line); border-radius: 13px; padding: 0;
+  width: min(845px, calc(100% - 22px)); max-height: 90vh; box-shadow: 0 20px 60px #122a2540
+}
+dialog.smallDialog { width: min(590px, calc(100% - 22px)) }
+dialog::backdrop { background: #101e1a75 }
+.dialogHead, .dialogFoot, .dialogBody { padding: 14px 17px }
+.dialogHead { border-bottom: 1px solid var(--line) }
+.dialogFoot { border-top: 1px solid var(--line); justify-content: flex-end }
+.dialogBody { display: grid; gap: 10px }
+.map, .fieldGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px }
+.map select { width: 100% }
+.required { color: var(--green); font-size: 10px }
+.check { display: flex; align-items: center; gap: 7px }
+.review { background: #f2f7f3; border-radius: 8px; padding: 10px 11px; line-height: 1.55 }
+.review p, .review details { margin-top: 5px; font-size: 12px }
+.review ul { margin: 6px 0 }
+.counts { display: flex; gap: 6px 18px; flex-wrap: wrap }
+.filename { overflow-wrap: anywhere; font-size: 12px }
+.toast {
+  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 10;
+  width: max-content; max-width: calc(100% - 22px); color: #fff; background: #184b3b;
+  padding: 10px 15px; border-radius: 8px; box-shadow: 0 6px 25px #162b2650
+}
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%) }
+@media (max-width: 620px) {
+  .metrics, .map, .fieldGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .metric { padding: 10px }
+  .metric strong { font-size: 22px }
+  .panelHead { align-items: flex-start }
+  .shell { padding-top: 17px }
+}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header>
+    <h1>한화시스템 주간 회의자료</h1>
+    <span class="storage" id="browserStatus"></span>
+  </header>
+  <p class="notice">작업 환경 연결 문제로 웹 배포와 기존 엑셀 두 파일의 검증이 보류됐습니다. 이 미리보기에서 파일을 올려 시트와 열을 확인한 뒤 반영하세요.</p>
+  <div class="actions">
+    <button id="planButton" class="primary">3개월 계획 업로드</button>
+    <button id="deliveryButton">납품완료 목록 업로드</button>
+    <button id="export">회의자료 엑셀 저장</button>
+    <input id="planFile" type="file" accept=".xlsx,.csv,.tsv" hidden>
+    <input id="deliveryFile" type="file" accept=".xlsx,.csv,.tsv" hidden>
+  </div>
+  <nav class="tabs" aria-label="회의자료 메뉴">
+    <button id="meetingTab">회의자료</button>
+    <button id="inventoryTab">품번 재고</button>
+    <button id="historyTab">반영 이력</button>
+  </nav>
+  <section id="meetingPane" aria-label="회의자료">
+    <div class="metrics" id="counters"></div>
+    <div class="panel">
+      <div class="panelHead row spread">
+        <div class="filters">
+          <label class="sr" for="search">발주번호, 항번, 자재코드, 품번 검색</label>
+          <input id="search" type="search" placeholder="발주번호·자재코드·품번 검색">
+          <label class="sr" for="filter">상태 필터</label>
+          <select id="filter">
+            <option value="all">전체</option>
+            <option value="open">납품예정</option>
+            <option value="new">신규 추가</option>
+            <option value="done">납품완료</option>
+            <option value="short">재고 부족</option>
+          </select>
+        </div>
+        <span class="muted" id="meetingCount"></span>
+      </div>
+      <div class="empty" id="meetingEmpty">
+        <h2>기존 3개월 계획표를 올려 시작하세요</h2>
+        <p>첫 파일이 기준 자료가 됩니다. 이후 계획에서 새로 들어온 항목에 ‘신규 추가’가 표시됩니다.</p>
+        <button class="primary" id="firstPlan">계획 엑셀 선택</button>
+      </div>
+      <div id="meetingTable" hidden>
+        <div class="tableWrap">
+          <table aria-label="납품 회의자료">
+            <thead>
+              <tr>
+                <th>발주번호 / 항번</th><th>자재코드 / 품번</th><th>납기일</th>
+                <th class="numeric">예정수량</th><th class="numeric">배정 후 예상 재고</th>
+                <th>상태</th><th>영업</th><th>생산관리</th><th>품질</th><th>확인사항</th>
+              </tr>
+            </thead>
+            <tbody id="orders"></tbody>
+          </table>
+        </div>
+        <div class="pages">
+          <button class="compact" id="prev">이전</button><span id="pages"></span><button class="compact" id="next">다음</button>
+        </div>
+      </div>
+    </div>
+    <details class="help">
+      <summary>반영 기준</summary>
+      <p>발주번호·항번·자재코드로 계획과 납품완료 목록을 대조합니다. 기존 행과 확인사항은 유지하고, 납품완료 목록에서 일치한 행의 상태를 바꿉니다.</p>
+      <p>계획 업로드에서 일치 항목의 납기일·예정수량 갱신을 선택할 수 있습니다. ‘신규 추가’는 변경사항이 반영된 최근 계획을 기준으로 표시합니다.</p>
+    </details>
+  </section>
+  <section id="inventoryPane" class="panel" hidden aria-labelledby="inventoryTitle">
+    <div class="paneBody">
+      <h2 id="inventoryTitle">품번별 기준 재고</h2>
+      <form id="stockForm" class="stockForm row">
+        <label>품번<input id="stockPart" list="partOptions" placeholder="A40007404" required></label>
+        <datalist id="partOptions"></datalist>
+        <label>현재 실재고<input id="stockNumber" type="number" min="0" step="1" placeholder="9" required></label>
+        <button class="primary" type="submit">재고 반영</button>
+      </form>
+      <p>같은 품번의 미납 수량을 납기일 순으로 차감합니다. 재고 9개에 예정수량 2개, 2개, 3개를 배정하면 예상 재고는 7개, 5개, 2개입니다.</p>
+      <p>납기 미정 건은 마지막에 배정됩니다. 납품완료 반영 후 실재고가 달라지면 등록 수량을 갱신하세요.</p>
+    </div>
+    <div class="tableWrap">
+      <table aria-label="품번별 예상 재고">
+        <thead><tr><th>품번</th><th class="numeric">등록 재고</th><th class="numeric">미납 예정수량</th><th class="numeric">배정 후 예상 재고</th><th>재고 입력</th></tr></thead>
+        <tbody id="stockRows"></tbody>
+      </table>
+    </div>
+  </section>
+  <section id="historyPane" class="panel" hidden aria-labelledby="historyTitle">
+    <div class="panelHead row spread">
+      <h2 id="historyTitle">파일 반영 이력</h2>
+      <div class="row">
+        <button id="backup">백업 저장</button><button id="restoreButton">백업 복원</button>
+        <input id="restoreFile" type="file" accept=".json" hidden>
+      </div>
+    </div>
+    <div class="tableWrap">
+      <table aria-label="파일 반영 이력">
+        <thead><tr><th>반영일시</th><th>유형</th><th>파일명</th><th>반영 결과</th></tr></thead>
+        <tbody id="historyRows"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<dialog id="importDialog" aria-labelledby="importTitle">
+  <div class="dialogHead">
+    <h2 id="importTitle"></h2><span class="muted filename" id="filename"></span>
+  </div>
+  <div class="dialogBody">
+    <label>시트<select id="sheetSelect"></select></label>
+    <p id="importMessage" role="status"></p>
+    <div id="importBody" class="dialogBody" style="padding:0" hidden>
+      <label>열 이름이 있는 행 번호<input id="headerRow" type="number" min="1" step="1"></label>
+      <div class="map" id="mapping"></div>
+      <p id="materialHint">품번과 자재코드가 같은 열에 있다면 두 항목에 그 열을 지정하세요.</p>
+      <label id="refreshLine" class="check"><input id="refresh" type="checkbox">일치 항목의 납기일·납품예정수량도 갱신</label>
+      <div class="review" id="review" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="dialogFoot">
+    <button type="button" data-close="importDialog">취소</button>
+    <button class="primary" id="apply" disabled>회의자료에 반영</button>
+  </div>
+</dialog>
+<dialog id="editDialog" class="smallDialog" aria-labelledby="editTitle">
+  <div class="dialogHead">
+    <h2 id="editTitle">항목 편집</h2><span class="muted filename" id="editMeta"></span>
+  </div>
+  <form id="editForm">
+    <div class="dialogBody">
+      <div class="fieldGrid">
+        <label>품번<input id="editPart"></label>
+        <label>납기일<input id="editDue" type="date" min="1900-01-01"></label>
+        <label>납품예정수량<input id="editQuantity" type="number" min="0" step="1"></label>
+      </div>
+      <div class="dialogBody" id="noteFields" style="padding:0"></div>
+    </div>
+    <div class="dialogFoot">
+      <button type="button" data-close="editDialog">취소</button><button type="submit" class="primary">저장</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="restoreDialog" class="smallDialog" aria-labelledby="restoreTitle">
+  <div class="dialogHead"><h2 id="restoreTitle">백업 복원</h2></div>
+  <div class="dialogBody"><p id="restoreMeta"></p></div>
+  <div class="dialogFoot">
+    <button type="button" data-close="restoreDialog">취소</button><button class="primary" id="restoreConfirm">복원</button>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+function meetingCore() {
+  const labels = {
+    po: "발주번호", line: "항번", material: "자재코드", part: "품번",
+    due: "납기일", qty: "납품예정수량", sales: "영업 확인사항", prod: "생산관리 확인사항",
+    quality: "품질 확인사항", status: "진행상태", delivered: "납품일"
+  };
+  const keys = ["po", "line", "material"];
+  const notes = ["sales", "prod", "quality"];
+  const planFields = [...keys, "part", "due", "qty", ...notes, "status", "delivered"];
+  const deliveryFields = [...keys, "delivered"];
+  const aliases = {
+    po: ["발주번호", "발주번호PO", "발주NO", "구매오더", "구매오더번호", "구매문서번호", "구매문서", "오더번호", "PONO", "PONUMBER", "PURCHASEORDER"],
+    line: ["항번", "발주항번", "행번", "발주순번", "구매오더품목", "구매문서품목", "발주품목번호", "항목번호", "품목항번", "POLINE", "LINE", "LINENO", "ITEMNO"],
+    material: ["자재코드", "자재번호", "자재", "품목코드", "고객자재코드", "고객사자재코드", "MATERIAL", "MATERIALCODE", "MATERIALNO"],
+    part: ["품번", "품목번호", "부품번호", "도번", "도면번호", "업체품번", "고객품번", "PARTNO", "PARTNUMBER"],
+    due: ["납기일", "납기", "납품예정일", "납품계획일", "요청납기", "요청납기일", "납기요청일", "기준납기", "조달납기", "업체납기", "납기일자", "납기일납품예정일", "DUEDATE"],
+    qty: ["납품예정수량", "납품계획수량", "납품수량", "미납수량", "잔여수량", "미결수량", "발주수량", "주문수량", "수량", "납품예정수량EA", "수량EA", "수량개", "QTY", "QUANTITY"],
+    sales: ["영업확인사항", "영업", "영업확인", "영업비고", "영업팀", "영업팀확인사항"],
+    prod: ["생산관리확인사항", "생산관리", "생산확인사항", "생산관리비고", "생산", "생산팀확인사항"],
+    quality: ["품질확인사항", "품질", "품질확인", "품질비고", "품질관리", "품질팀확인사항"],
+    status: ["진행상태", "납품상태", "상태", "납품여부"],
+    delivered: ["납품일", "납품완료일", "실제납품일", "납품일자", "실납품일", "납품일거래명세서날짜", "거래명세서날짜", "거래명세서일자", "송장일자", "송장날짜", "배송일자", "출하일", "출고일자", "배송완료일", "DELIVERYDATE"]
+  };
+
+  const clean = value => String(value ?? "").trim().normalize("NFC");
+  const header = value => clean(value).normalize("NFKC").toLowerCase().replace(/[^a-z0-9가-힣]/g, "");
+  const lineId = value => clean(value).replace(/^0*(\d+)(?:\.0+)?$/, "$1");
+  const key = row => JSON.stringify([row.po, row.line, row.material]);
+  const describe = row => `${row.po} / ${row.line} / ${row.material}`;
+  const fresh = () => ({schema: 1, rev: "", rows: [], stocks: [], newest: [], history: []});
+
+  function quantity(value) {
+    const text = clean(value);
+    if (!text) return null;
+    if (!/^(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.0+)?$/.test(text)) return undefined;
+    const n = Number(text.replaceAll(",", ""));
+    return Number.isSafeInteger(n) ? n : undefined;
+  }
+
+  function date(value, date1904 = false) {
+    const text = clean(value);
+    if (!text) return "";
+    const match = text.match(/^(\d{4})(\d{2})(\d{2})$/) ||
+      text.match(/^(\d{4})[.\-/년\s]+(\d{1,2})[.\-/월\s]+(\d{1,2})(?:[.일])?(?:[T\s].*)?$/);
+    if (match) {
+      const [, year, month, day] = match.map(Number);
+      const parsed = new Date(Date.UTC(year, month - 1, day));
+      if (year >= 1900 && parsed.getUTCFullYear() === year &&
+          parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day) {
+        return parsed.toISOString().slice(0, 10);
+      }
+      return "";
+    }
+    if (/^\d{1,7}(?:\.\d+)?$/.test(text)) {
+      const serial = Math.floor(Number(text));
+      if (serial > (date1904 ? 2957003 : 2958465) || (!date1904 && (serial === 0 || serial === 60))) return "";
+      const offset = date1904 ? 24107 : serial < 60 ? 25568 : 25569;
+      return new Date((serial - offset) * 86400000).toISOString().slice(0, 10);
+    }
+    return "";
+  }
+
+  function suggest(cells, fields) {
+    const headings = cells.map(header);
+    const mapping = {};
+    const used = new Set();
+    for (const field of fields) {
+      let index = -1;
+      for (const label of aliases[field]) {
+        index = headings.findIndex((name, position) => name === header(label) && !used.has(position));
+        if (index >= 0) break;
+      }
+      if (index >= 0) used.add(index);
+      mapping[field] = index;
+    }
+    return mapping;
+  }
+
+  function guess(rows, fields) {
+    let best = rows[0]?.number ?? 1;
+    let highest = -1;
+    for (const row of rows.slice(0, 60)) {
+      const mapping = suggest(row.cells, fields);
+      const score = fields.filter(field => mapping[field] >= 0)
+        .reduce((total, field) => total + (keys.includes(field) ? 12 : 1), 0);
+      if (score > highest && score > 0) {
+        highest = score;
+        best = row.number;
+      }
+    }
+    return {best, score: highest};
+  }
+
+  function parseRows(sheet, number, mapping, mode) {
+    const required = keys.map(field => mapping[field]);
+    if (required.some(index => !Number.isInteger(index) || index < 0) ||
+        new Set(required).size !== keys.length) {
+      return {error: "발주번호·항번·자재코드에 서로 다른 열을 지정해 주세요."};
+    }
+    const found = new Map();
+    const conflicts = new Set();
+    const issues = [];
+    let repeats = 0;
+    const addIssue = (n, reason) => issues.push({n, reason});
+    for (const record of sheet.rows) {
+      if (record.number <= number || !record.cells.some(cell => clean(cell))) continue;
+      const cell = field => record.cells[mapping[field]];
+      const row = {po: clean(cell("po")), line: lineId(cell("line")), material: clean(cell("material"))};
+      if (keys.some(field => !row[field])) {
+        addIssue(record.number, "발주번호·항번·자재코드 누락");
+        continue;
+      }
+      const delivered = date(cell("delivered"), sheet.date1904);
+      if (clean(cell("delivered")) && !delivered) addIssue(record.number, "납품일 형식 확인");
+      const id = key(row);
+      const previous = found.get(id);
+      if (mode === "delivery") {
+        if (previous) repeats++;
+        if (!previous || delivered > previous.delivered) found.set(id, {...row, delivered});
+        continue;
+      }
+
+      const due = date(cell("due"), sheet.date1904);
+      const qty = quantity(cell("qty"));
+      if (clean(cell("due")) && !due) addIssue(record.number, "납기일 형식 확인");
+      if (qty === undefined) addIssue(record.number, "납품예정수량은 0 이상의 정수로 입력");
+      const done = header(cell("status")) === "납품완료";
+      const next = {
+        ...row, part: clean(cell("part")), due, qty: qty ?? null,
+        sales: clean(cell("sales")), prod: clean(cell("prod")), quality: clean(cell("quality")),
+        done, delivered: done ? delivered : ""
+      };
+      if (conflicts.has(id)) continue;
+      if (!previous) {
+        found.set(id, next);
+        continue;
+      }
+      const comparedFields = ["part", "due", "qty", ...notes, "delivered"];
+      const present = value => value !== "" && value !== null;
+      if (comparedFields.some(field => present(previous[field]) && present(next[field]) && previous[field] !== next[field])) {
+        found.delete(id);
+        conflicts.add(id);
+        addIssue(record.number, `중복 키에 서로 다른 값이 있어 제외 · ${describe(row)}`);
+        continue;
+      }
+      repeats++;
+      for (const field of comparedFields) if (!present(previous[field])) previous[field] = next[field];
+      previous.done ||= next.done;
+    }
+    return {items: [...found.values()], issues, repeats};
+  }
+
+  function reconcile(state, parsed, mode, refreshSchedule) {
+    const rows = new Map(state.rows.map(row => [key(row), row]));
+    const result = {
+      rows, added: [], matched: 0, changed: 0, schedule: 0,
+      completed: 0, missing: [], partChanges: [], baseline: !state.rows.length
+    };
+    for (const incoming of parsed.items) {
+      const id = key(incoming);
+      const prior = rows.get(id);
+      if (mode === "delivery") {
+        if (!prior) {
+          result.missing.push(describe(incoming));
+          continue;
+        }
+        result.matched++;
+        const delivered = [prior.delivered, incoming.delivered].sort().at(-1);
+        if (!prior.done || prior.delivered !== delivered) {
+          result.changed++;
+          if (!prior.done) result.completed++;
+          rows.set(id, {...prior, done: true, delivered});
+        }
+        continue;
+      }
+      if (!prior) {
+        result.added.push(id);
+        rows.set(id, incoming);
+        continue;
+      }
+      result.matched++;
+      const next = {...prior};
+      const scheduleDiffers = (incoming.due && incoming.due !== prior.due) ||
+        (incoming.qty !== null && incoming.qty !== prior.qty);
+      if (scheduleDiffers) result.schedule++;
+      if (refreshSchedule) {
+        if (incoming.due) next.due = incoming.due;
+        if (incoming.qty !== null) next.qty = incoming.qty;
+      }
+      if (prior.part && incoming.part && prior.part !== incoming.part) {
+        result.partChanges.push(describe(incoming));
+      }
+      for (const field of ["part", ...notes]) if (!next[field]) next[field] = incoming[field];
+      if (incoming.done && !prior.done) {
+        next.done = true;
+        next.delivered = incoming.delivered;
+        result.completed++;
+      }
+      if (Object.keys(next).some(field => next[field] !== prior[field])) {
+        result.changed++;
+        rows.set(id, next);
+      }
+    }
+    return result;
+  }
+
+  function schedule(state) {
+    const compare = new Intl.Collator("ko", {numeric: true}).compare;
+    const rows = [...state.rows].sort((a, b) =>
+      Number(a.done) - Number(b.done) ||
+      (a.due || "9999-99-99").localeCompare(b.due || "9999-99-99") ||
+      compare(a.po, b.po) || compare(a.line, b.line) || compare(a.material, b.material) ||
+      key(a).localeCompare(key(b)));
+    const balances = new Map(state.stocks.map(({part, amount}) => [part, {amount, after: amount, demand: 0}]));
+    const planned = rows.map(row => {
+      const balance = balances.get(row.part);
+      if (row.done || !balance || row.qty === null) return {...row, after: null, shortage: null};
+      const shortage = Math.max(0, row.qty - Math.max(0, balance.after));
+      balance.after -= row.qty;
+      balance.demand += row.qty;
+      return {...row, after: balance.after, shortage};
+    });
+    return {planned, balances};
+  }
+
+  return {labels, keys, notes, planFields, deliveryFields, clean, lineId, key, describe, fresh, quantity, date, suggest, guess, parseRows, reconcile, schedule};
+}
+
+function meetingFiles() {
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  const xlsxType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+  function csvRows(source, separator, maximum = Infinity) {
+    const records = [];
+    let value = "";
+    let cells = [];
+    let quoted = false;
+    const endCell = () => { cells.push(value); value = ""; };
+    const endRow = () => {
+      endCell();
+      records.push({number: records.length + 1, cells});
+      cells = [];
+    };
+    for (let i = 0; i < source.length; i++) {
+      const char = source[i];
+      if (quoted) {
+        if (char !== '"') value += char;
+        else if (source[i + 1] === '"') { value += '"'; i++; }
+        else quoted = false;
+      } else if (char === '"' && value === "") quoted = true;
+      else if (char === separator) endCell();
+      else if (char === "\r" || char === "\n") {
+        if (char === "\r" && source[i + 1] === "\n") i++;
+        endRow();
+        if (records.length >= maximum) return records;
+      } else value += char;
+    }
+    if (quoted) throw new Error("CSV에서 닫히지 않은 따옴표를 확인해 주세요.");
+    if (cells.length || value) endRow();
+    return records;
+  }
+
+  function csvBook(buffer, name) {
+    let data;
+    try { data = new TextDecoder("utf-8", {fatal: true}).decode(buffer); }
+    catch { data = new TextDecoder("euc-kr").decode(buffer); }
+    const options = [",", "\t", ";"];
+    const width = separator => {
+      try {
+        return csvRows(data, separator, 16).reduce((score, row) =>
+          score + (row.cells.length > 1 ? row.cells.length : 0), 0);
+      } catch { return -1; }
+    };
+    const separator = options.reduce((best, candidate) => width(candidate) > width(best) ? candidate : best);
+    return {names: [name], sheet: async () => ({rows: csvRows(data, separator)})};
+  }
+
+  function zipEntries(buffer) {
+    const bytes = new Uint8Array(buffer);
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    const u16 = offset => view.getUint16(offset, true);
+    const u32 = offset => view.getUint32(offset, true);
+    let end = bytes.length - 22;
+    const start = Math.max(0, end - 65535);
+    while (end >= start && (u32(end) !== 0x06054b50 || end + 22 + u16(end + 20) !== bytes.length)) end--;
+    if (end < start || u16(end + 4) || u16(end + 6)) {
+      throw new Error("엑셀 파일의 압축 구조를 읽을 수 없습니다.");
+    }
+    const count = u16(end + 10);
+    let pos = u32(end + 16);
+    const entries = new Map();
+    for (let i = 0; i < count; i++) {
+      if (pos + 46 > end || u32(pos) !== 0x02014b50) throw new Error("엑셀 파일의 내부 목록을 읽을 수 없습니다.");
+      const length = u16(pos + 28);
+      const name = decoder.decode(bytes.subarray(pos + 46, pos + 46 + length));
+      entries.set(name, {
+        flags: u16(pos + 8), method: u16(pos + 10), zipped: u32(pos + 20),
+        size: u32(pos + 24), position: u32(pos + 42)
+      });
+      pos += 46 + length + u16(pos + 30) + u16(pos + 32);
+    }
+    return async name => {
+      const entry = entries.get(name);
+      if (!entry) return null;
+      const offset = entry.position;
+      if (entry.flags & 1) throw new Error("암호를 해제한 엑셀 파일을 올려 주세요.");
+      if (entry.size > 45 * 1024 * 1024) throw new Error("큰 시트를 나눠서 올려 주세요.");
+      if (offset + 30 > bytes.length || u32(offset) !== 0x04034b50) {
+        throw new Error("엑셀 파일의 내부 항목을 읽을 수 없습니다.");
+      }
+      const begin = offset + 30 + u16(offset + 26) + u16(offset + 28);
+      const compressed = bytes.subarray(begin, begin + entry.zipped);
+      if (compressed.length !== entry.zipped) throw new Error("엑셀 파일이 손상됐습니다.");
+      if (entry.method === 0 && entry.zipped === entry.size) return compressed;
+      if (entry.method !== 8 || typeof DecompressionStream === "undefined") {
+        throw new Error("현재 브라우저에서 이 엑셀의 압축을 열 수 없습니다. CSV 또는 최신 Chrome에서 다시 시도해 주세요.");
+      }
+      const reader = new Blob([compressed]).stream().pipeThrough(new DecompressionStream("deflate-raw")).getReader();
+      const output = new Uint8Array(entry.size);
+      let length = 0;
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        if (length + value.length > output.length) {
+          await reader.cancel();
+          throw new Error("엑셀 파일의 압축 크기가 일치하지 않습니다.");
+        }
+        output.set(value, length);
+        length += value.length;
+      }
+      if (length !== output.length) throw new Error("엑셀 파일의 압축 크기가 일치하지 않습니다.");
+      return output;
+    };
+  }
+
+  const elements = (node, name) => node ? Array.from(node.getElementsByTagNameNS("*", name)) : [];
+  const child = (node, name) => Array.from(node.children).find(item => item.localName === name);
+  const textNodes = node => elements(node, "t")
+    .filter(item => item.parentElement.localName !== "rPh").map(item => item.textContent).join("");
+
+  function xml(bytes) {
+    if (!bytes) return null;
+    const format = bytes[0] === 255 && bytes[1] === 254 ? "utf-16le"
+      : bytes[0] === 254 && bytes[1] === 255 ? "utf-16be" : "utf-8";
+    const contents = new TextDecoder(format).decode(bytes);
+    if (/<!DOCTYPE/i.test(contents)) throw new Error("엑셀 파일의 XML 형식을 읽을 수 없습니다.");
+    const doc = new DOMParser().parseFromString(contents, "application/xml");
+    if (elements(doc, "parsererror").length) throw new Error("엑셀 파일의 XML이 손상됐습니다.");
+    return doc;
+  }
+
+  function path(target) {
+    const pieces = (target.startsWith("/") ? target.slice(1) : "xl/" + target).split("/");
+    const segments = [];
+    for (const piece of pieces) {
+      if (piece === "..") segments.pop();
+      else if (piece && piece !== ".") segments.push(piece);
+    }
+    return segments.join("/");
+  }
+
+  function column(index) {
+    let name = "";
+    for (let n = index + 1; n > 0; n = Math.floor((n - 1) / 26)) {
+      name = String.fromCharCode(65 + (n - 1) % 26) + name;
+    }
+    return name;
+  }
+
+  function readRows(document, strings, pads) {
+    let fallback = 0;
+    return elements(document, "row").map(row => {
+      const number = Number(row.getAttribute("r")) || fallback + 1;
+      fallback = number;
+      const cells = [];
+      let index = 0;
+      for (const cell of Array.from(row.children).filter(node => node.localName === "c")) {
+        const address = cell.getAttribute("r")?.match(/^[A-Z]+/i)?.[0].toUpperCase();
+        if (address) index = Array.from(address).reduce((total, letter) => total * 26 + letter.charCodeAt(0) - 64, 0) - 1;
+        if (index < 0 || index >= 16384) throw new Error("엑셀의 열 주소를 확인해 주세요.");
+        const type = cell.getAttribute("t");
+        const raw = child(cell, "v")?.textContent ?? "";
+        let value = raw;
+        if (type === "s") value = raw ? strings[Number(raw)] ?? "" : "";
+        else if (type === "inlineStr") value = textNodes(cell);
+        else if (type === "e") value = "";
+        else if ((!type || type === "n") && raw && Number.isSafeInteger(Number(raw))) {
+          const padding = pads[Number(cell.getAttribute("s") ?? 0)] ?? 0;
+          const numeric = Number(raw);
+          value = padding && numeric >= 0 ? String(numeric).padStart(padding, "0") : numeric;
+        }
+        cells[index] = value;
+        index++;
+      }
+      return {number, cells};
+    }).filter(row => row.cells.some(value => String(value ?? "").trim()));
+  }
+
+  async function openXlsx(buffer) {
+    const read = zipEntries(buffer);
+    const [workbook, relationships] = await Promise.all([
+      read("xl/workbook.xml").then(xml), read("xl/_rels/workbook.xml.rels").then(xml)
+    ]);
+    if (!workbook || !relationships) throw new Error("엑셀 통합문서에서 시트 목록을 찾을 수 없습니다.");
+    const links = elements(relationships, "Relationship").filter(node => node.getAttribute("TargetMode") !== "External");
+    const targets = new Map(links.map(item => [item.getAttribute("Id"), path(item.getAttribute("Target") || "")]));
+    const resource = (kind, standard) => {
+      const link = links.find(item => item.getAttribute("Type")?.endsWith("/" + kind));
+      return link ? targets.get(link.getAttribute("Id")) : standard;
+    };
+    const sheets = elements(workbook, "sheet").map(node => {
+      const relationship = Array.from(node.attributes).find(attr => attr.localName === "id");
+      return {name: node.getAttribute("name"), target: targets.get(relationship?.value)};
+    }).filter(sheet => sheet.target);
+    if (!sheets.length) throw new Error("읽을 수 있는 시트가 없습니다.");
+    const [shared, style] = await Promise.all([
+      read(resource("sharedStrings", "xl/sharedStrings.xml")).then(xml),
+      read(resource("styles", "xl/styles.xml")).then(xml)
+    ]);
+    const strings = elements(shared, "si").map(textNodes);
+    const formats = new Map(elements(style, "numFmt").map(node => [node.getAttribute("numFmtId"), node.getAttribute("formatCode")]));
+    const pads = elements(elements(style, "cellXfs")[0], "xf").map(node => {
+      const format = formats.get(node.getAttribute("numFmtId"));
+      return /^0{2,24}$/.test(format ?? "") ? format.length : 0;
+    });
+    const date1904 = /^(1|true)$/i.test(elements(workbook, "workbookPr")[0]?.getAttribute("date1904") ?? "");
+    return {
+      names: sheets.map(sheet => sheet.name),
+      sheet: async index => ({date1904, rows: readRows(xml(await read(sheets[index].target)), strings, pads)})
+    };
+  }
+
+  async function open(file) {
+    if (file.size > 25 * 1024 * 1024) throw new Error("25MB 이하의 엑셀 또는 CSV 파일을 올려 주세요.");
+    const buffer = await file.arrayBuffer();
+    if (/\.(csv|tsv)$/i.test(file.name)) return csvBook(buffer, file.name);
+    const bytes = new Uint8Array(buffer, 0, Math.min(2, buffer.byteLength));
+    if (bytes[0] !== 80 || bytes[1] !== 75) {
+      throw new Error("암호가 없는 .xlsx 또는 .csv 형식으로 저장해 다시 올려 주세요.");
+    }
+    return openXlsx(buffer);
+  }
+
+  function crc32(bytes) {
+    let crc = 0xffffffff;
+    for (const byte of bytes) {
+      crc ^= byte;
+      for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
+    }
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+
+  function zipStored(entries) {
+    const payload = [];
+    const directory = [];
+    let offset = 0;
+    let directorySize = 0;
+    function block(length, fields) {
+      const bytes = new Uint8Array(length);
+      const view = new DataView(bytes.buffer);
+      for (const [index, value, size] of fields) {
+        if (size === 4) view.setUint32(index, value, true);
+        else view.setUint16(index, value, true);
+      }
+      return bytes;
+    }
+    for (const [file, source] of entries) {
+      const name = encoder.encode(file);
+      const data = encoder.encode(source);
+      const size = data.length;
+      const checksum = crc32(data);
+      const local = block(30, [[0,0x04034b50,4],[4,20],[6,2048],[12,33],[14,checksum,4],[18,size,4],[22,size,4],[26,name.length]]);
+      const central = block(46, [[0,0x02014b50,4],[4,20],[6,20],[8,2048],[14,33],[16,checksum,4],[20,size,4],[24,size,4],[28,name.length],[42,offset,4]]);
+      payload.push(local, name, data);
+      directory.push(central, name);
+      offset += local.length + name.length + data.length;
+      directorySize += central.length + name.length;
+    }
+    const end = block(22, [[0,0x06054b50,4],[8,entries.length],[10,entries.length],[12,directorySize,4],[16,offset,4]]);
+    return [...payload, ...directory, end];
+  }
+
+  function workbook(rows) {
+    const escapeXml = value => String(value ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "")
+      .replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&apos;"})[char]);
+    const ns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+    const relationship = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+    const packageRelationship = "http://schemas.openxmlformats.org/package/2006/relationships";
+    const renderRows = rows.map((row, i) => `<row r="${i + 1}">${row.map((value, j) => {
+      const cell = `${column(j)}${i + 1}`;
+      if (typeof value === "number") return `<c r="${cell}"><v>${value}</v></c>`;
+      if (value === null || value === "") return "";
+      return `<c r="${cell}" t="inlineStr"><is><t xml:space="preserve">${escapeXml(value)}</t></is></c>`;
+    }).join("")}</row>`).join("");
+    const entries = [
+      ["[Content_Types].xml", '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>'],
+      ["_rels/.rels", `<Relationships xmlns="${packageRelationship}"><Relationship Id="rId1" Type="${relationship}/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+      ["xl/workbook.xml", `<workbook xmlns="${ns}" xmlns:r="${relationship}"><sheets><sheet name="회의자료" sheetId="1" r:id="rId1"/></sheets></workbook>`],
+      ["xl/_rels/workbook.xml.rels", `<Relationships xmlns="${packageRelationship}"><Relationship Id="rId1" Type="${relationship}/worksheet" Target="worksheets/sheet1.xml"/></Relationships>`],
+      ["xl/worksheets/sheet1.xml", `<worksheet xmlns="${ns}"><sheetData>${renderRows}</sheetData></worksheet>`]
+    ];
+    return new Blob(zipStored(entries), {type: xlsxType});
+  }
+
+  return {open, column, workbook};
+}
+
+function runMeeting(core, files) {
+  const $ = id => document.getElementById(id);
+  const h = value => String(value ?? "").replace(/[&<>"']/g, char =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
+  const numberFormat = new Intl.NumberFormat("ko-KR");
+  const fmt = value => value === null ? "—" : numberFormat.format(value);
+  const storageKey = "hanwha-weekly-meeting-v1";
+  const tabs = ["meeting", "inventory", "history"];
+  const modes = {plan: "3개월 계획", delivery: "납품완료 목록"};
+  const pageSize = 18;
+  const timestamp = new Intl.DateTimeFormat("ko-KR", {dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Seoul"});
+  const reportDate = () => new Intl.DateTimeFormat("sv-SE", {timeZone: "Asia/Seoul"}).format(new Date());
+  let state = core.fresh();
+  let browserSave = true;
+  let active = "meeting";
+  let page = 0;
+  let filter = "all";
+  let operation = null;
+  let editing = null;
+  let restoring = null;
+  let messageTimeout;
+  let current = core.schedule(state);
+
+  function validate(raw) {
+    if (raw?.schema !== 1 || !Array.isArray(raw.rows) || !Array.isArray(raw.stocks) ||
+        !Array.isArray(raw.newest) || !Array.isArray(raw.history)) {
+      throw new Error("이 화면에서 만든 백업 파일을 선택해 주세요.");
+    }
+    const rows = raw.rows.map(item => {
+      const po = core.clean(item?.po);
+      const line = core.lineId(item?.line);
+      const material = core.clean(item?.material);
+      const qty = item?.qty;
+      if (!po || !line || !material || (qty !== null && (!Number.isSafeInteger(qty) || qty < 0))) {
+        throw new Error("백업의 발주 식별 정보 또는 수량을 확인해 주세요.");
+      }
+      return {
+        po, line, material, part: core.clean(item.part), due: core.date(item.due), qty,
+        sales: core.clean(item.sales), prod: core.clean(item.prod), quality: core.clean(item.quality),
+        done: item.done === true, delivered: core.date(item.delivered)
+      };
+    });
+    const ids = new Set(rows.map(core.key));
+    if (ids.size !== rows.length) throw new Error("백업에 같은 발주번호·항번·자재코드 조합이 있습니다.");
+    const stocks = raw.stocks.map(item => {
+      const part = core.clean(item?.part);
+      const amount = item?.amount;
+      if (!part || !Number.isSafeInteger(amount) || amount < 0) {
+        throw new Error("백업의 품번과 재고 수량을 확인해 주세요.");
+      }
+      return {part, amount};
+    });
+    if (new Set(stocks.map(stock => stock.part)).size !== stocks.length) {
+      throw new Error("백업에 중복된 품번 재고가 있습니다.");
+    }
+    const history = raw.history.filter(item => Object.hasOwn(modes, item?.mode) && Number.isFinite(Date.parse(item.at)))
+      .slice(0, 60).map(item => ({
+        mode: item.mode, at: item.at, file: core.clean(item.file), summary: core.clean(item.summary)
+      }));
+    return {
+      schema: 1, rev: core.clean(raw.rev), rows, stocks,
+      newest: [...new Set(raw.newest.filter(id => ids.has(id)))], history
+    };
+  }
+
+  function readLocal() {
+    const data = localStorage.getItem(storageKey);
+    return data ? validate(JSON.parse(data)) : core.fresh();
+  }
+  try { state = readLocal(); } catch { browserSave = false; }
+
+  function notify(message) {
+    const toast = $("toast");
+    toast.textContent = message;
+    toast.hidden = false;
+    clearTimeout(messageTimeout);
+    messageTimeout = setTimeout(() => { toast.hidden = true; }, 4500);
+  }
+
+  async function commit(next, expected = state.rev) {
+    const save = () => {
+      if (expected !== state.rev) {
+        notify("자료가 변경됐습니다. 화면을 다시 열어 확인해 주세요.");
+        return false;
+      }
+      if (browserSave) {
+        try {
+          const latest = readLocal();
+          if (latest.rev !== expected) {
+            state = latest;
+            render();
+            notify("다른 탭에서 자료가 갱신됐습니다. 변경사항을 다시 확인해 주세요.");
+            return false;
+          }
+        } catch { browserSave = false; }
+      }
+      state = {...next, rev: `${Date.now()}-${Math.random().toString(36).slice(2)}`};
+      if (browserSave) {
+        try { localStorage.setItem(storageKey, JSON.stringify(state)); }
+        catch { browserSave = false; }
+      }
+      render();
+      return true;
+    };
+    let locks;
+    try { if (browserSave) locks = navigator.locks; } catch {}
+    return locks ? locks.request(storageKey, save) : save();
+  }
+
+  function changeTab(tab) {
+    active = tab;
+    render();
+  }
+
+  function matching(row, newest, search) {
+    if (filter === "open" && row.done) return false;
+    if (filter === "done" && !row.done) return false;
+    if (filter === "new" && !newest.has(core.key(row))) return false;
+    if (filter === "short" && !(row.shortage > 0)) return false;
+    return !search || [row.po, row.line, row.material, row.part].some(value => value.toLowerCase().includes(search));
+  }
+
+  function renderMeeting() {
+    const newest = new Set(state.newest);
+    const planned = current.planned;
+    const done = planned.reduce((n, row) => n + Number(row.done), 0);
+    const counters = [
+      ["open", "납품예정", planned.length - done], ["new", "신규 추가", newest.size],
+      ["done", "납품완료", done], ["short", "재고 부족", planned.filter(row => row.shortage > 0).length]
+    ];
+    $("counters").innerHTML = counters.map(([id, label, value]) =>
+      `<button class="metric ${id}" data-filter="${id}" aria-pressed="${filter === id}">
+        <span>${label}</span><strong>${fmt(value)}</strong></button>`
+    ).join("");
+    const search = $("search").value.trim().toLowerCase();
+    const shown = planned.filter(row => matching(row, newest, search));
+    page = Math.max(0, Math.min(page, Math.ceil(shown.length / pageSize) - 1));
+    $("filter").value = filter;
+    $("meetingCount").textContent = `${fmt(shown.length)} / ${fmt(planned.length)}건`;
+    $("meetingEmpty").hidden = planned.length > 0;
+    $("meetingTable").hidden = !planned.length;
+    const ids = new Map(state.rows.map((row, index) => [core.key(row), index]));
+    $("orders").innerHTML = shown.slice(page * pageSize, (page + 1) * pageSize).map(row => {
+      const id = core.key(row);
+      return `<tr>
+        <td><strong class="code">${h(row.po)}</strong><small>항번 ${h(row.line)}</small></td>
+        <td><strong class="code">${h(row.material)}</strong><small>${row.part ? h(row.part) : "품번 미지정"}</small></td>
+        <td>${h(row.due || "미정")}${row.delivered && row.done ? `<small>납품 ${h(row.delivered)}</small>` : ""}</td>
+        <td class="numeric">${fmt(row.qty)}</td>
+        <td class="numeric ${row.shortage > 0 ? "warning" : ""}">${fmt(row.after)}${row.shortage > 0 ? `<small>${fmt(row.shortage)}개 부족</small>` : ""}</td>
+        <td><span class="tag ${row.done ? "done" : "open"}">${row.done ? "납품완료" : "납품예정"}</span>${newest.has(id) ? '<span class="tag new">신규 추가</span>' : ""}</td>
+        ${core.notes.map(field => `<td class="noteCell"><span title="${h(row[field])}">${h(row[field] || "—")}</span></td>`).join("")}
+        <td><button class="compact" data-edit="${ids.get(id)}" aria-label="${h(core.describe(row))} 확인사항 편집">편집</button></td>
+      </tr>`;
+    }).join("") || '<tr><td colspan="10" class="emptyCell">조건에 맞는 항목이 없습니다.</td></tr>';
+    $("prev").disabled = page === 0;
+    $("next").disabled = (page + 1) * pageSize >= shown.length;
+    $("pages").textContent = shown.length ? `${page + 1} / ${Math.ceil(shown.length / pageSize)}` : "0 / 0";
+  }
+
+  function renderInventory() {
+    const parts = [...new Set(state.rows.map(row => row.part).filter(Boolean))].sort();
+    $("partOptions").innerHTML = parts.map(part => `<option value="${h(part)}"></option>`).join("");
+    const rows = [...current.balances].sort(([a], [b]) => a.localeCompare(b, "ko", {numeric: true}));
+    $("stockRows").innerHTML = rows.map(([part, balance]) => `<tr>
+      <td><strong class="code">${h(part)}</strong></td><td class="numeric">${fmt(balance.amount)}</td>
+      <td class="numeric">${fmt(balance.demand)}</td><td class="numeric ${balance.after < 0 ? "warning" : ""}">${fmt(balance.after)}</td>
+      <td><button class="compact" data-stock="${h(part)}">수정</button></td>
+    </tr>`).join("") || '<tr><td class="emptyCell" colspan="5">등록한 품번 재고가 없습니다.</td></tr>';
+  }
+
+  function renderHistory() {
+    $("historyRows").innerHTML = state.history.map(entry => `<tr>
+      <td>${h(timestamp.format(new Date(entry.at)))}</td><td>${h(modes[entry.mode])}</td>
+      <td class="fileCell">${h(entry.file)}</td><td>${h(entry.summary)}</td></tr>`).join("") ||
+      '<tr><td class="emptyCell" colspan="4">아직 반영한 파일이 없습니다.</td></tr>';
+  }
+
+  function render() {
+    current = core.schedule(state);
+    $("browserStatus").textContent = browserSave ? "이 브라우저에 저장" : "현재 창에 임시 보관";
+    $("browserStatus").classList.toggle("warning", !browserSave);
+    for (const tab of tabs) {
+      $(tab + "Pane").hidden = active !== tab;
+      $(tab + "Tab").setAttribute("aria-pressed", String(active === tab));
+    }
+    $("export").disabled = !state.rows.length;
+    $("backup").disabled = !(state.rows.length || state.stocks.length);
+    if (active === "meeting") renderMeeting();
+    if (active === "inventory") renderInventory();
+    if (active === "history") renderHistory();
+  }
+
+  function review() {
+    const {sheet, headerNumber, mapping, mode} = operation;
+    const parsed = core.parseRows(sheet, headerNumber, mapping, mode);
+    if (parsed.error) {
+      $("review").textContent = parsed.error;
+      $("apply").disabled = true;
+      return;
+    }
+    const change = core.reconcile(state, parsed, mode, $("refresh").checked);
+    const warnings = [
+      ...parsed.issues.map(issue => `${issue.n}행 · ${issue.reason}`),
+      ...change.partChanges.map(row => `기존 품번 유지 · ${row}`),
+      ...change.missing.map(row => `계획표에서 찾지 못함 · ${row}`)
+    ];
+    const counts = mode === "plan"
+      ? [["추가", change.added.length], ["기존 일치", change.matched], ["납기·수량 변경 감지", change.schedule]]
+      : [["새로 납품완료", change.completed], ["계획표와 일치", change.matched], ["미일치", change.missing.length]];
+    const summary = counts.map(([label, n]) => `<span>${label} <strong>${fmt(n)}건</strong></span>`).join("");
+    const info = [];
+    if (mode === "plan" && change.baseline && change.added.length) info.push("첫 계획은 기준 자료로 등록됩니다.");
+    if (mode === "plan" && (mapping.part < 0 || mapping.qty < 0)) info.push("재고 계산에 사용할 품번과 납품예정수량 열을 지정해 주세요.");
+    if (parsed.repeats) info.push(`같은 키의 중복 ${fmt(parsed.repeats)}행을 한 건씩 처리합니다.`);
+    if (!change.added.length && !change.changed) info.push("현재 회의자료에 반영할 변경사항이 없습니다.");
+    $("review").innerHTML = `<div class="counts">${summary}</div>${info.map(line => `<p>${h(line)}</p>`).join("")}
+      ${warnings.length ? `<details><summary>확인 필요 ${fmt(warnings.length)}건</summary>
+        <ul>${warnings.slice(0, 25).map(warning => `<li>${h(warning)}</li>`).join("")}</ul>
+        ${warnings.length > 25 ? "<p>처음 25건을 표시합니다.</p>" : ""}</details>` : ""}`;
+    $("apply").disabled = !change.added.length && !change.changed;
+  }
+
+  function drawMapping() {
+    const {sheet, fields, headerNumber, mapping} = operation;
+    const headings = sheet.rows.find(row => row.number === headerNumber)?.cells ?? [];
+    const examples = sheet.rows.filter(row => row.number > headerNumber).slice(0, 4);
+    const count = Math.max(headings.length, ...examples.map(row => row.cells.length), 0);
+    const columns = Array.from({length: count}, (_, i) => {
+      const head = core.clean(headings[i]);
+      const example = examples.map(row => core.clean(row.cells[i])).find(Boolean) ?? "";
+      return `${files.column(i)}${head ? " · " + head : ""}${example ? " | " + example.slice(0, 45) : ""}`;
+    });
+    $("mapping").innerHTML = fields.map(field => `<label>${h(core.labels[field])}${core.keys.includes(field) ? ' <span class="required">필수</span>' : ""}
+      <select data-field="${field}" aria-label="${h(core.labels[field])}">
+        <option value="-1">열 선택</option>
+        ${columns.map((label, i) => `<option value="${i}" ${i === mapping[field] ? "selected" : ""}>${h(label)}</option>`).join("")}
+      </select></label>`).join("");
+    review();
+  }
+
+  function headerChanged(number) {
+    operation.headerNumber = Math.max(1, Number(number) || 1);
+    const headings = operation.sheet.rows.find(row => row.number === operation.headerNumber)?.cells ?? [];
+    operation.mapping = core.suggest(headings, operation.fields);
+    drawMapping();
+  }
+
+  async function selectSheet(index) {
+    const task = operation;
+    const generation = (task.generation ?? 0) + 1;
+    task.generation = generation;
+    $("importBody").hidden = true;
+    $("apply").disabled = true;
+    $("importMessage").textContent = "시트의 열을 읽는 중입니다.";
+    try {
+      const sheet = await task.book.sheet(index);
+      if (operation !== task || task.generation !== generation) return;
+      task.sheet = sheet;
+      $("headerRow").value = core.guess(sheet.rows, task.fields).best;
+      $("importBody").hidden = false;
+      $("importMessage").textContent = sheet.rows.length ? "" : "선택한 시트에 읽을 행이 없습니다.";
+      headerChanged($("headerRow").value);
+    } catch (error) {
+      if (operation === task) $("importMessage").textContent = error.message || "선택한 시트를 읽지 못했습니다.";
+    }
+  }
+
+  async function selectFile(file, mode) {
+    const task = {file, mode, fields: mode === "plan" ? core.planFields : core.deliveryFields, expected: state.rev};
+    operation = task;
+    $("importTitle").textContent = modes[mode] + " 반영";
+    $("filename").textContent = file.name;
+    $("importBody").hidden = true;
+    $("sheetSelect").disabled = true;
+    $("sheetSelect").innerHTML = "";
+    $("refresh").checked = false;
+    $("refreshLine").hidden = mode !== "plan";
+    $("materialHint").hidden = mode !== "plan";
+    $("importMessage").textContent = "파일을 읽는 중입니다.";
+    $("apply").disabled = true;
+    $("importDialog").showModal();
+    try {
+      task.book = await files.open(file);
+      if (operation !== task) return;
+      $("sheetSelect").innerHTML = task.book.names.map((name, i) => `<option value="${i}">${h(name)}</option>`).join("");
+      $("sheetSelect").disabled = false;
+      await selectSheet(0);
+    } catch (error) {
+      if (operation === task) $("importMessage").textContent = error.message || "파일을 열지 못했습니다.";
+    }
+  }
+
+  async function applyImport() {
+    if (!operation?.sheet) return;
+    const task = operation;
+    const parsed = core.parseRows(task.sheet, task.headerNumber, task.mapping, task.mode);
+    if (parsed.error) return;
+    if (task.expected !== state.rev) {
+      task.expected = state.rev;
+      review();
+      $("importMessage").textContent = "회의자료가 갱신됐습니다. 변경 건수를 다시 확인해 주세요.";
+      return;
+    }
+    const change = core.reconcile(state, parsed, task.mode, $("refresh").checked);
+    if (!change.changed && !change.added.length) return;
+    $("apply").disabled = true;
+    const summary = task.mode === "plan"
+      ? `추가 ${change.added.length}건 · 기존 갱신 ${change.changed}건`
+      : `새로 납품완료 ${change.completed}건 · 미일치 ${change.missing.length}건`;
+    const newest = task.mode === "plan" ? (change.baseline ? [] : change.added) : state.newest;
+    const history = [{mode: task.mode, at: new Date().toISOString(), file: task.file.name, summary}, ...state.history].slice(0, 60);
+    const saved = await commit({...state, rows: [...change.rows.values()], newest, history}, task.expected);
+    if (!saved) {
+      task.expected = state.rev;
+      review();
+      $("importMessage").textContent = "회의자료가 갱신됐습니다. 변경 건수를 다시 확인해 주세요.";
+      return;
+    }
+    $("importDialog").close();
+    page = 0;
+    filter = "all";
+    $("search").value = "";
+    changeTab("meeting");
+    notify(browserSave ? summary + " 반영" : "현재 창에 반영했습니다. 반영 이력에서 백업할 수 있습니다.");
+  }
+
+  function edit(index) {
+    const row = state.rows[index];
+    if (!row) return;
+    editing = {id: core.key(row), expected: state.rev};
+    $("editMeta").textContent = core.describe(row);
+    $("editPart").value = row.part;
+    $("editDue").value = row.due;
+    $("editQuantity").value = row.qty ?? "";
+    $("noteFields").innerHTML = core.notes.map(field => `<label>${h(core.labels[field])}
+      <textarea name="${field}" rows="3">${h(row[field])}</textarea></label>`).join("");
+    $("editDialog").showModal();
+  }
+
+  function saveFile(blob, name) {
+    const address = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = address;
+    link.download = name;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(address), 30000);
+  }
+
+  function exportReport() {
+    const newest = new Set(state.newest);
+    const headings = ["발주번호", "항번", "자재코드", "품번", "납기일", "납품예정수량", "진행상태",
+      "납품일", "신규구분", "배정 후 예상 재고", "부족 수량", ...core.notes.map(field => core.labels[field])];
+    const records = current.planned.map(row => [
+      row.po, row.line, row.material, row.part, row.due, row.qty, row.done ? "납품완료" : "납품예정", row.delivered,
+      newest.has(core.key(row)) ? "신규 추가" : "", row.after, row.shortage, ...core.notes.map(field => row[field])
+    ]);
+    saveFile(files.workbook([headings, ...records]), `한화시스템_회의자료_${reportDate()}.xlsx`);
+  }
+
+  for (const tab of tabs) $(tab + "Tab").onclick = () => changeTab(tab);
+  for (const mode of Object.keys(modes)) {
+    const input = $(mode + "File");
+    $(mode + "Button").onclick = () => input.click();
+    input.onchange = () => {
+      const [file] = input.files;
+      input.value = "";
+      if (file) selectFile(file, mode);
+    };
+  }
+  $("firstPlan").onclick = () => $("planFile").click();
+  $("importDialog").onclose = () => { operation = null; };
+  $("sheetSelect").onchange = event => selectSheet(Number(event.target.value));
+  $("headerRow").onchange = event => headerChanged(event.target.value);
+  $("mapping").onchange = event => {
+    const field = event.target.dataset.field;
+    if (field) {
+      operation.mapping[field] = Number(event.target.value);
+      review();
+    }
+  };
+  $("refresh").onchange = review;
+  $("apply").onclick = applyImport;
+  $("export").onclick = exportReport;
+  $("search").oninput = () => { page = 0; renderMeeting(); };
+  $("filter").onchange = event => { filter = event.target.value; page = 0; renderMeeting(); };
+  $("counters").onclick = event => {
+    const button = event.target.closest("[data-filter]");
+    if (button) {
+      filter = filter === button.dataset.filter ? "all" : button.dataset.filter;
+      page = 0;
+      renderMeeting();
+    }
+  };
+  $("prev").onclick = () => { page--; renderMeeting(); };
+  $("next").onclick = () => { page++; renderMeeting(); };
+  $("orders").onclick = event => {
+    const button = event.target.closest("[data-edit]");
+    if (button) edit(Number(button.dataset.edit));
+  };
+  $("editForm").onsubmit = async event => {
+    event.preventDefault();
+    if (!editing) return;
+    const form = new FormData(event.currentTarget);
+    const converted = core.quantity($("editQuantity").value);
+    if (converted === undefined) {
+      notify("수량을 0 이상의 정수로 입력해 주세요.");
+      return;
+    }
+    const rows = state.rows.map(row => core.key(row) === editing.id
+      ? {...row, part: core.clean($("editPart").value), due: $("editDue").value, qty: converted,
+        ...Object.fromEntries(core.notes.map(field => [field, core.clean(form.get(field))]))}
+      : row);
+    if (await commit({...state, rows}, editing.expected)) {
+      $("editDialog").close();
+      notify("확인사항을 반영했습니다.");
+    } else {
+      $("editMeta").textContent = "자료가 갱신됐습니다. 창을 다시 열어 확인해 주세요.";
+    }
+  };
+  $("stockRows").onclick = event => {
+    const button = event.target.closest("[data-stock]");
+    if (!button) return;
+    $("stockPart").value = button.dataset.stock;
+    $("stockNumber").value = current.balances.get(button.dataset.stock).amount;
+    $("stockNumber").focus();
+  };
+  $("stockForm").onsubmit = async event => {
+    event.preventDefault();
+    const part = core.clean($("stockPart").value);
+    const amount = core.quantity($("stockNumber").value);
+    if (!part || !Number.isSafeInteger(amount)) {
+      notify("품번과 0 이상의 정수 재고를 입력해 주세요.");
+      return;
+    }
+    const stocks = state.stocks.filter(stock => stock.part !== part);
+    stocks.push({part, amount});
+    if (await commit({...state, stocks})) notify("품번 재고를 반영했습니다.");
+  };
+  $("backup").onclick = () => saveFile(new Blob([JSON.stringify(state)], {type: "application/json"}), `회의자료_백업_${reportDate()}.json`);
+  $("restoreButton").onclick = () => $("restoreFile").click();
+  $("restoreFile").onchange = async event => {
+    const [file] = event.target.files;
+    event.target.value = "";
+    if (!file) return;
+    try {
+      const next = validate(JSON.parse(await file.text()));
+      restoring = {next, expected: state.rev};
+      $("restoreMeta").textContent = `회의자료 ${fmt(next.rows.length)}건, 품번 재고 ${fmt(next.stocks.length)}건을 불러옵니다. 현재 자료가 이 백업으로 바뀝니다.`;
+      $("restoreDialog").showModal();
+    } catch {
+      notify("이 화면에서 만든 백업 JSON 파일을 확인해 주세요.");
+    }
+  };
+  $("restoreConfirm").onclick = async () => {
+    if (restoring && await commit(restoring.next, restoring.expected)) {
+      $("restoreDialog").close();
+      filter = "all";
+      page = 0;
+      $("search").value = "";
+      changeTab("meeting");
+      notify("백업을 복원했습니다.");
+    }
+  };
+  document.querySelectorAll("[data-close]").forEach(button => {
+    button.onclick = () => $(button.dataset.close).close();
+  });
+  window.addEventListener("storage", event => {
+    if (event.key !== storageKey || !browserSave) return;
+    try { state = readLocal(); render(); }
+    catch { notify("다른 탭의 변경사항을 읽지 못했습니다."); }
+  });
+  render();
+}
+
+runMeeting(meetingCore(), meetingFiles());
+</script>
+</body>
+</html>
